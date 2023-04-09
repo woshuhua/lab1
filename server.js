@@ -2,10 +2,6 @@ const express = require('express')
 const app = express()
 const port = 3000
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
-const myPlaintextPassword = 's0/\/\P4$$w0rD';
-const someOtherPlaintextPassword = 'not_bacon';
-
 
 let dbUsers = [
     {
