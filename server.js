@@ -123,6 +123,7 @@ app.post('/login2', async(req,res)=> {
     }
     else {
         res.send('Password and username is matched!')
+        console.log(user)
     }
 })
 
