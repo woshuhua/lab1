@@ -18,44 +18,6 @@ let dbUsers = [
     }
   ]
 
-
-function login(username, password) {
-    console.log("Someone try to login with", username, password)
-    let matched = dbUsers.find(element => 
-        element.username == username
-    )
-    if (matched){
-        if(matched.password == password) {
-            return matched
-        } else{
-            return "Password not matched"
-        }
-    } else{
-        return "Username not found"
-    }
-  }
-  
-function register(newusername, newpassword, newname, newemail){
-    //TODO: Check username if exist
-    let checking = dbUsers.find(element=>
-        element.username == newusername
-        )
-    if(checking){
-        return ("This username has been registered")
-    }
-    else{
-    dbUsers.push({
-        username: newusername,
-        password: newpassword,
-        name: newname,
-        email: newemail
-    })
-    return ("Register successful")
-  }
-  }
-
-
-
 app.use(express.json());
 
 app.get('/', (req, res) => {
@@ -66,43 +28,23 @@ app.post('/', (req, res) => {
     res.send(req.body)
   });
 
-// create a post for user to login
-app.post('/login',(req,res)=> {
-    // get the username and password from the request body
-    const {username,password} = req.body;
-  
-    //find the user in the database
-    const user = dbUsers.find(user => user.username === username && user.password === password);
-  
-    //if user is found, return the user object
-    if(user){
-      res.send(user);
-    } else {
-      //if user is not found, return an error message
-      res.send({error : "User not found"})
-    }
-  
-  })
-
-app.post('/register',(req,res) => {
-    let data = req.body
-    res.send(
-      register(
-        data.newusername,
-        data.newpassword,
-        data.newname,
-        data.newemail
-      )
-    );
-  });
-
 app.post('/signup',async (req,res) => {
-    const {username, password} = req.body
+    const {username, password, name, email} = req.body
     const hash = await bcrypt.hash(password,13)
+    let checked = dbUsers.find(element => 
+      element.username == username 
+      )
 
+    if(checked){
+      res.send("This username has been registered.")
+      return
+    }
+    
     dbUsers.push({
         username,
-        password : hash
+        password : hash,
+        name,
+        email
     })
 
     console.log(dbUsers)
@@ -111,6 +53,11 @@ app.post('/signup',async (req,res) => {
 
 app.post('/login2', async(req,res)=> {
     const {username,password} = req.body
+    for (let i = 0; i < 2 ; i++){
+      const hash = await bcrypt.hash(dbUsers[i].password,13)
+      dbUsers[i].password = hash 
+    }
+    console.log(dbUsers)
     const user = dbUsers.find(u => u.username === username)
     if(!user) {
         res.send('No user!')
@@ -131,4 +78,3 @@ app.listen(port, () => {
     console.log(`Server listening at port http://localhost:${port}`);
   })
 
-console.log(login("Wong", "password"))
